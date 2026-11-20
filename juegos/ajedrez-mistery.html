@@ -751,15 +751,19 @@ function getPseudoMoves(b, r, c) {
         }
       }
     }
-    // Castling if King hasn't moved and is between Rooks
+    // Castling: check every square between the king and the corner rook.
     if (!p.moved) {
-      // Kingside
-      if (c + 3 < 8 && b[r][7] && b[r][7].color === p.color && b[r][7].type === 'R' && !b[r][7].moved && !b[r][c+1] && !b[r][c+2] && (c + 3 === 7 || !b[r][c+3])) {
-        moves.push({ r, c: c + 2, castle: 'K' });
+      // Kingside (the king must finish before the rook's starting square).
+      if (c + 2 < 7 && b[r][7] && b[r][7].color === p.color && b[r][7].type === 'R' && !b[r][7].moved) {
+        let clearPath = true;
+        for (let col = c + 1; col < 7; col++) if (b[r][col]) clearPath = false;
+        if (clearPath) moves.push({ r, c: c + 2, castle: 'K' });
       }
-      // Queenside
-      if (c - 4 >= 0 && b[r][0] && b[r][0].color === p.color && b[r][0].type === 'R' && !b[r][0].moved && !b[r][c-1] && !b[r][c-2] && !b[r][c-3] && (c - 4 === 0 || !b[r][c-4])) {
-        moves.push({ r, c: c - 2, castle: 'Q' });
+      // Queenside.
+      if (c - 2 > 0 && b[r][0] && b[r][0].color === p.color && b[r][0].type === 'R' && !b[r][0].moved) {
+        let clearPath = true;
+        for (let col = 1; col < c; col++) if (b[r][col]) clearPath = false;
+        if (clearPath) moves.push({ r, c: c - 2, castle: 'Q' });
       }
     }
   } else {
