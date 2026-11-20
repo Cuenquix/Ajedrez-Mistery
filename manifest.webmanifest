@@ -1,13 +1,13 @@
 {
   "id": "./",
-  "name": "Cuenquix",
-  "short_name": "Cuenquix",
-  "description": "Juegos originales creados por Cuenquix.",
+  "name": "Ajedrez Mistery",
+  "short_name": "Ajedrez",
+  "description": "Ajedrez Mistery y otros juegos originales de Marc Cuenca (Cuenquix).",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#091321",
-  "theme_color": "#091321",
+  "background_color": "#101b17",
+  "theme_color": "#101b17",
   "icons": [
     {
       "src": "./icons/mistery-192.svg",
