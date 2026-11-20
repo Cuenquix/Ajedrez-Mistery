@@ -1,4 +1,4 @@
-const CACHE_NAME = "cuenquix-juegos-v3";
+const CACHE_NAME = "ajedrez-mistery-v4";
 const BASE = new URL("./", self.registration.scope);
 const APP_FILES = ["", "index.html", "juegos/ajedrez-mistery.html", "juegos/parking-genius.html", "manifest.webmanifest", "icons/mistery-192.svg", "icons/mistery-512.svg"].map(path => new URL(path, BASE).href);
 
