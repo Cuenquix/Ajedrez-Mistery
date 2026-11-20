@@ -1,6 +1,6 @@
-# Ajedrez Mistery — Cuenquix
+# Cuenquix Juegos
 
-Portal oficial de juegos originales creados por **Cuenquix**.
+Portal oficial de juegos originales creados por **Cuenquix**. Ajedrez Mistery y Parking Genius son dos juegos independientes bajo la misma marca.
 
 ## Juegos
 
@@ -48,4 +48,4 @@ GitHub Pages publica los archivos de la rama `main`. Los cambios subidos al repo
 
 ## Mantenimiento
 
-El repositorio conserva el nombre `Ajedrez-Mistery` para no cambiar la dirección pública de GitHub Pages. Los nombres visibles de los juegos son **Ajedrez Mistery** y **Parking Genius**, sin el sufijo «Pro».
+El portal se presenta como `Cuenquix Juegos`. El repositorio conserva el nombre técnico `Ajedrez-Mistery` para no cambiar la dirección pública de GitHub Pages. Los nombres visibles de los juegos son **Ajedrez Mistery** y **Parking Genius**, sin el sufijo «Pro».
