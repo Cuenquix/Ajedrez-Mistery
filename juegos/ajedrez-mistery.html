@@ -754,11 +754,11 @@ function getPseudoMoves(b, r, c) {
     // Castling if King hasn't moved and is between Rooks
     if (!p.moved) {
       // Kingside
-      if (c + 3 < 8 && b[r][7] && b[r][7].color === p.color && b[r][7].type === 'R' && !b[r][7].moved && !b[r][c+1] && !b[r][c+2]) {
+      if (c + 3 < 8 && b[r][7] && b[r][7].color === p.color && b[r][7].type === 'R' && !b[r][7].moved && !b[r][c+1] && !b[r][c+2] && (c + 3 === 7 || !b[r][c+3])) {
         moves.push({ r, c: c + 2, castle: 'K' });
       }
       // Queenside
-      if (c - 4 >= 0 && b[r][0] && b[r][0].color === p.color && b[r][0].type === 'R' && !b[r][0].moved && !b[r][c-1] && !b[r][c-2] && !b[r][c-3]) {
+      if (c - 4 >= 0 && b[r][0] && b[r][0].color === p.color && b[r][0].type === 'R' && !b[r][0].moved && !b[r][c-1] && !b[r][c-2] && !b[r][c-3] && (c - 4 === 0 || !b[r][c-4])) {
         moves.push({ r, c: c - 2, castle: 'Q' });
       }
     }
