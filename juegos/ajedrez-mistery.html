@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ajedrez Mistery Pro - Marc Cuenca Sastre (Cuenquix)</title>
+<title>Ajedrez Mistery · Cuenquix</title>
+<meta name="theme-color" content="#0f172a"><link rel="manifest" href="../manifest.webmanifest"><link rel="icon" href="../icons/mistery-192.svg" type="image/svg+xml"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Ajedrez Mistery">
 <style>
   :root {
     --bg: #0f172a;
@@ -127,7 +128,7 @@ button{transition:transform .16s,filter .16s,background .16s}button:focus-visibl
 <body>
 
 <header>
-  <div class="logo">♟️ AJEDREZ MISTERY <span style="font-size:0.7rem; background:#334155; color:#fff; padding:2px 6px; border-radius:4px;">PRO</span></div>
+  <div class="logo">♟️ AJEDREZ MISTERY</div>
   <div style="display:flex; gap:8px; align-items:center;">
     <div class="elo-badge" id="header-elo">ELO: 1000</div>
     <button class="sound-btn" id="sound-toggle" onclick="toggleSound()">🔊</button>
@@ -1007,5 +1008,6 @@ function closeEndModal() {
 // Inicio de la interfaz: el archivo original estaba cortado antes de cerrar el documento.
 updateStatsUI();
 </script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",()=>navigator.serviceWorker.register("../sw.js",{scope:"../"}).catch(()=>{}));}</script>
 </body>
 </html>
