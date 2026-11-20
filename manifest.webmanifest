@@ -1,8 +1,8 @@
 {
   "id": "./",
-  "name": "Cuenquix Juegos",
+  "name": "Cuenquix",
   "short_name": "Cuenquix",
-  "description": "Juegos originales de estrategia, ingenio y diversión creados por Cuenquix.",
+  "description": "Juegos originales creados por Cuenquix.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
