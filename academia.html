@@ -62,6 +62,40 @@ P.forEach(q=>{
  else if(originalArea==="Mistery") q[0]="Ajedrez Mistery";
  q[1]="Desafío "+String(titleCount[q[0]]=(titleCount[q[0]]||0)+1).padStart(2,"0");
 });
+
+const DAY_MS=86400000;
+function localDayKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function dayNumber(){const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/DAY_MS)}
+const dailyQuestion=P[dayNumber()%P.length];let dailyOptions=[];
+function renderDaily(){
+ const today=localDayKey(),completed=localStorage.getItem("amDailyDone")===today;
+ const date=new Date();document.getElementById("dailyDate").textContent=date.toLocaleDateString("es-ES",{day:"numeric",month:"long"});
+ document.getElementById("dailyStreak").textContent=localStorage.getItem("amDailyStreak")||"0";
+ document.getElementById("dailyTitle").textContent="Desafío diario · "+dailyQuestion[0];
+ document.getElementById("dailyQ").textContent=dailyQuestion[2];
+ dailyOptions=dailyQuestion[3].split("|").map((label,original)=>({label,original}));
+ for(let k=dailyOptions.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[dailyOptions[k],dailyOptions[j]]=[dailyOptions[j],dailyOptions[k]]}
+ const box=document.getElementById("dailyChoices");
+ box.innerHTML=dailyOptions.map((o,j)=>'<button class="choice" data-daily="'+j+'" '+(completed?"disabled":"")+'>'+o.label+'</button>').join("");
+ document.getElementById("dailyRetry").style.display="none";
+ document.getElementById("dailyFeedback").textContent=completed?"Reto diario completado. ¡Mañana tendrás uno nuevo!":"Acierta para ganar 15 XP. Puedes intentarlo de nuevo si fallas.";
+ box.querySelectorAll("[data-daily]").forEach(btn=>btn.onclick=()=>answerDaily(Number(btn.dataset.daily)));
+}
+function answerDaily(j){
+ if(localStorage.getItem("amDailyDone")===localDayKey())return;
+ const ok=dailyOptions[j].original===dailyQuestion[4],box=document.getElementById("dailyChoices");
+ box.querySelectorAll("button").forEach((btn,k)=>{btn.disabled=true;if(dailyOptions[k].original===dailyQuestion[4])btn.classList.add("correct");if(k===j&&!ok)btn.classList.add("wrong")});
+ if(!ok){document.getElementById("dailyFeedback").textContent="No es esa. Puedes volver a intentarlo; no pierdes puntos.";document.getElementById("dailyRetry").style.display="inline-block";return}
+ const today=localDayKey(),yesterday=localDayKey(new Date(Date.now()-DAY_MS)),last=localStorage.getItem("amDailyLast")||"";
+ const streak=last===yesterday?Number(localStorage.getItem("amDailyStreak")||0)+1:1;
+ localStorage.setItem("amDailyLast",today);localStorage.setItem("amDailyDone",today);localStorage.setItem("amDailyStreak",String(streak));
+ data.xp+=15;localStorage.setItem("amAcademy",JSON.stringify(data));
+ document.getElementById("dailyStreak").textContent=streak;
+ document.getElementById("dailyFeedback").textContent="¡Correcto! +15 XP. "+dailyQuestion[5]+" Racha: "+streak+" días.";
+ stat();
+}
+document.getElementById("dailyRetry").onclick=renderDaily;
+
 const themes=["Todos",...new Set(P.map(x=>x[0]))];let theme="Todos",i=0,done=false;let data;try{data=JSON.parse(localStorage.getItem("amAcademy")||'{"xp":0,"solved":[]}')}catch(e){data={xp:0,solved:[]}}
 const list=()=>P.filter(x=>theme==="Todos"||x[0]===theme);
 function stat(){let boardXP=Number(localStorage.getItem("amBoardXP")||0),totalXP=data.xp+boardXP,boardSolved=JSON.parse(localStorage.getItem("amBoardSolved")||"[]");let n=Math.floor(totalXP/100)+1,ranks=["Peón curioso","Aprendiz","Táctico","Estratega","Experto","Maestro Mistery","Gran estratega","Élite Mistery","Leyenda del tablero"];document.getElementById("xp").textContent=totalXP;document.getElementById("lvl").textContent=n;document.getElementById("sol").textContent=data.solved.length+boardSolved.length;document.getElementById("rank").textContent=ranks[Math.min(ranks.length-1,Math.floor((n-1)/2))];document.getElementById("prog").style.width=totalXP%100+"%";document.getElementById("progtxt").textContent=totalXP%100+" / 100 XP para el siguiente nivel"}
