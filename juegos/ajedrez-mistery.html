@@ -7,17 +7,17 @@
 <meta name="theme-color" content="#0f172a"><link rel="manifest" href="../manifest.webmanifest"><link rel="icon" href="../icons/mistery-192.svg" type="image/svg+xml"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Ajedrez Mistery">
 <style>
   :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --panel-light: #334155;
-    --accent: #f59e0b;
-    --accent-hover: #fbbf24;
+    --bg: #0d1a2b;
+    --panel: #14243a;
+    --panel-light: #20354f;
+    --accent: #d8b36a;
+    --accent-hover: #f0ce83;
     --danger: #ef4444;
     --success: #10b981;
     --text: #f8fafc;
     --muted: #94a3b8;
-    --light-sq: #e2e8f0;
-    --dark-sq: #475569;
+    --light-sq: #e8dcc2;
+    --dark-sq: #8d7659;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
   body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 10px; }
@@ -70,7 +70,7 @@
 
   #board-wrapper { position: relative; padding: 6px; background: var(--panel); border-radius: 10px; border: 2px solid #334155; }
   #board { display: grid; grid-template-columns: repeat(8, min(11vw, 54px)); grid-template-rows: repeat(8, min(11vw, 54px)); user-select: none; }
-  .sq .coord-rank,.sq .coord-file { position:absolute; font:600 9px/1 sans-serif; opacity:.72; pointer-events:none; z-index:2; }.sq .coord-rank{top:2px;right:3px}.sq .coord-file{bottom:2px;left:3px}
+  .sq .coord-rank,.sq .coord-file { position:absolute; font:600 9px/1 sans-serif; opacity:.72; pointer-events:none; z-index:2; }.sq .coord-rank{top:2px;left:3px}.sq .coord-file{bottom:2px;left:3px}
   .sq.light .coord-rank,.sq.light .coord-file { color:#263246; } .sq.dark .coord-rank,.sq.dark .coord-file { color:#f5e8c9; }
   .sq { display: flex; justify-content: center; align-items: center; font-size: min(8vw, 38px); cursor: pointer; position: relative; }
   .sq.light { background: var(--light-sq); color: #0f172a; }
@@ -151,7 +151,7 @@ button{transition:transform .16s,filter .16s,background .16s}button:focus-visibl
 <!-- MENU VIEW -->
 <div id="view-menu" class="view active">
   <div class="card">
-    <h2>1. Elige Modo de Juego</h2>
+    <h2>1. Elige modalidad</h2>
     <div class="mode-grid">
       <div class="mode-btn selected" id="mode-bot" onclick="selectMode('bot')">
         <span class="title">🤖 Contra Bot IA</span>
@@ -337,7 +337,7 @@ const DEFAULT_STATS = { elo: 1000, wins: 0, games: 0, onlineWins: 0, streak: 0, 
 let stats = (() => { try { return { ...DEFAULT_STATS, ...(JSON.parse(localStorage.getItem('mistery_chess_stats')) || {}) }; } catch(e) { return { ...DEFAULT_STATS }; } })();
 
 const TROPHIES = [
-  { id: 'first_win', icon: '🥉', title: 'Primer Paso Misterioso', desc: 'Gana tu primera partida en Ajedrez Mistery.', check: s => s.wins >= 1 },
+  { id: 'first_win', icon: '🥉', title: 'Primer Paso Misterioso', desc: 'Completa tu primera partida en la modalidad Ajedrez Mistery.', check: s => s.wins >= 1 },
   { id: 'online_hero', icon: '🌐', title: 'Desafiante Misterioso', desc: 'Gana 3 partidas contra rivales simulados.', check: s => s.onlineWins >= 3 },
   { id: 'streak_3', icon: '🔥', title: 'Racha Imparable', desc: 'Consigue 3 victorias consecutivas.', check: s => s.bestStreak >= 3 },
   { id: 'beat_master', icon: '🥇', title: 'Matagigantes Táctico', desc: 'Derrota al Bot Maestro (1600 ELO).', check: s => s.beatLvl3 },
