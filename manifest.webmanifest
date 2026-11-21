@@ -1,7 +1,7 @@
 {
   "id": "./",
   "name": "Ajedrez Mistery",
-  "short_name": "Mistery",
+  "short_name": "Ajedrez Mistery",
   "description": "Juega, aprende y entrena con Ajedrez Mistery.",
   "start_url": "./",
   "scope": "./",
