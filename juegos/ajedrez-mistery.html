@@ -77,7 +77,7 @@
   .sq.dark { background: var(--dark-sq); color: #0f172a; }
   .sq.setup-zone { box-shadow: inset 0 0 0 2px rgba(16, 185, 129, 0.45); }
   .sq.hidden-zone { background: #0f172a !important; color: transparent !important; cursor: not-allowed; }
-  .sq.hidden-zone::after { content: '?'; color: #334155; font-size: 1.2rem; font-weight: bold; }
+  .sq.hidden-zone::after { content: ''; }
   .sq.selected { background: #fde047 !important; }
   .sq.last-move { background: rgba(245, 158, 11, 0.45) !important; }
   .sq.hint::before { content: ''; width: 14px; height: 14px; background: rgba(16, 185, 129, 0.75); border-radius: 50%; position: absolute; }
@@ -556,20 +556,20 @@ function renderBoard() {
       const sq = document.createElement('div');
       const isLight = (r + c) % 2 === 0;
       sq.className = 'sq ' + (isLight ? 'light' : 'dark');
-      // Coordenadas oficiales: rangos en el borde izquierdo y columnas en el inferior.
-      if (c === 7) {
+      const isHidden = (phase === 'setup_w' && r < 4) || (phase === 'setup_b' && r >= 4);
+      // Las coordenadas solo aparecen en la zona visible durante la preparación.
+      if (!isHidden && c === 7) {
         const rank = document.createElement('span');
         rank.className = 'coord-rank';
         rank.textContent = String(8-r);
         sq.appendChild(rank);
       }
-      if (r === 7) {
+      if (!isHidden && r === 7) {
         const file = document.createElement('span');
         file.className = 'coord-file';
         file.textContent = String.fromCharCode(97+c);
         sq.appendChild(file);
       }
-      const isHidden = (phase === 'setup_w' && r < 4) || (phase === 'setup_b' && r >= 4);
       if (isHidden) {
         sq.classList.add('hidden-zone');
       } else {
@@ -650,26 +650,47 @@ function validateArmyPlacement(color) {
 }
 
 function makeRandomArmy(color) {
+  // Formación distribuida por las cuatro filas propias, manteniendo rey y torres
+  // en la fila inicial para conservar la posibilidad de enrocar.
   const backRow = color === 'w' ? 7 : 0;
-  const pawnRow = color === 'w' ? 6 : 1;
-  const nonPawns = ['K','Q','R','R','B','B','N','N'];
-  let order = [];
-  for (let attempt=0; attempt<500; attempt++) {
-    const candidate = [...nonPawns].sort(() => Math.random()-.5);
-    const k=candidate.indexOf('K'), rooks=candidate.map((p,i)=>p==='R'?i:-1).filter(i=>i>=0), bishops=candidate.map((p,i)=>p==='B'?i:-1).filter(i=>i>=0);
-    if (rooks[0] < k && k < rooks[1] && (bishops[0]%2)!==(bishops[1]%2)) { order=candidate; break; }
+  const ownRows = color === 'w' ? [4,5,6,7] : [0,1,2,3];
+  const pawnRows = color === 'w' ? [4,5,6] : [1,2,3];
+  const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
+  const backFiles = shuffle([0,1,2,3,4,5,6,7]);
+  const kingFile = backFiles[3];
+  const rookFiles = [backFiles[0], backFiles[7]].sort((a,b)=>a-b);
+  board[backRow][kingFile] = {color,type:'K',moved:false};
+  rookFiles.forEach(c => { board[backRow][c] = {color,type:'R',moved:false}; });
+
+  const freeSquares = [];
+  ownRows.forEach(r => { for(let c=0;c<8;c++) if(!board[r][c]) freeSquares.push({r,c}); });
+  const special = ['Q','B','B','N','N'];
+  let bishopParity = [];
+  for (const type of special) {
+    let choices = shuffle(freeSquares.filter(sq => type !== 'B' || !bishopParity.includes((sq.r+sq.c)%2)));
+    const sq = choices[0];
+    if (!sq) throw new Error('No hay casillas libres para completar la formación.');
+    board[sq.r][sq.c] = {color,type,moved:false};
+    freeSquares.splice(freeSquares.findIndex(x=>x.r===sq.r&&x.c===sq.c),1);
+    if(type==='B') bishopParity.push((sq.r+sq.c)%2);
   }
-  if (!order.length) order=['R','N','B','Q','K','B','N','R'];
-  for(let c=0;c<8;c++) board[backRow][c]={color,type:order[c],moved:false};
-  const pawns=Array(8).fill('P');
-  for(let c=0;c<8;c++) board[pawnRow][c]={color,type:pawns[c],moved:false};
+  const pawnSquares = shuffle(freeSquares.filter(sq=>pawnRows.includes(sq.r))).slice(0,8);
+  if(pawnSquares.length!==8) throw new Error('No hay espacio suficiente para colocar los peones.');
+  pawnSquares.forEach(sq=>board[sq.r][sq.c]={color,type:'P',moved:false});
 }
 
 function autoFillSetup() {
   const color = phase === 'setup_w' ? 'w' : 'b';
   const rows = color === 'w' ? [4,5,6,7] : [0,1,2,3];
-  rows.forEach(r=>{for(let c=0;c<8;c++) board[r][c]=null;});
-  makeRandomArmy(color);
+  let generated = false;
+  for(let attempt=0;attempt<120;attempt++){
+    rows.forEach(r=>{for(let c=0;c<8;c++) board[r][c]=null;});
+    makeRandomArmy(color);
+    const otherColor = color === 'w' ? 'b' : 'w';
+    const otherKingExists = board.flat().some(p=>p&&p.color===otherColor&&p.type==='K');
+    if(!isKingInCheck(board,color) && (!otherKingExists || !isKingInCheck(board,otherColor))){generated=true;break;}
+  }
+  if(!generated){showError('No se ha podido generar una formación segura. Inténtalo de nuevo.');return;}
   bank=[]; selectedBankIdx=null; selectedSq=null;
   SFX.place(); renderBank(); renderBoard();
 }
