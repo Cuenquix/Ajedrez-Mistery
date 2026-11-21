@@ -1,6 +1,6 @@
-const CACHE_NAME = "ajedrez-mistery-v6";
+const CACHE_NAME = "ajedrez-mistery-v7";
 const BASE = new URL("./", self.registration.scope);
-const APP_FILES = ["", "index.html", "juegos/ajedrez-mistery.html", "juegos/parking-genius.html", "manifest.webmanifest", "icons/mistery-192.svg", "icons/mistery-512.svg"].map(path => new URL(path, BASE).href);
+const APP_FILES = ["", "index.html", "juegos/ajedrez-mistery.html", "manifest.webmanifest", "icons/mistery-192.svg", "icons/mistery-512.svg"].map(path => new URL(path, BASE).href);
 
 self.addEventListener("install", event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)).then(() => self.skipWaiting()));
