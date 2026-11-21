@@ -755,7 +755,7 @@ function isInsufficientMaterial(){
 function isBareKings(){ return isInsufficientMaterial(); }
 function recordPosition(){
   const key=positionKey(); repetitionHistory.push(key);
-  if(repetitionHistory.filter(x=>x===key).length>=3){endGame("draw","Tablas automáticas por triple repetición.");return true;}
+  if(repetitionHistory.filter(x=>x===key).length>=5){endGame("draw","Tablas automáticas por quinta repetición.");return true;}
   if(isBareKings()){endGame("draw","Tablas automáticas por material insuficiente.");return true;}
   if(halfMoveClock>=150){endGame("draw","Tablas automáticas por 75 movimientos sin captura ni movimiento de peón.");return true;}
   return false;
