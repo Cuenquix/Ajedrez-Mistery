@@ -70,7 +70,9 @@
 
   #board-wrapper { position: relative; padding: 6px; background: var(--panel); border-radius: 10px; border: 2px solid #334155; }
   #board { display: grid; grid-template-columns: repeat(8, min(11vw, 54px)); grid-template-rows: repeat(8, min(11vw, 54px)); user-select: none; }
-  .sq .coord { position:absolute; bottom:2px; left:3px; font:600 9px/1 sans-serif; opacity:.65; pointer-events:none; z-index:2; }\n  .sq.light .coord { color:#263246; } .sq.dark .coord { color:#f5e8c9; }\n  .sq { display: flex; justify-content: center; align-items: center; font-size: min(8vw, 38px); cursor: pointer; position: relative; }
+  .sq .coord { position:absolute; bottom:2px; left:3px; font:600 9px/1 sans-serif; opacity:.65; pointer-events:none; z-index:2; }
+  .sq.light .coord { color:#263246; } .sq.dark .coord { color:#f5e8c9; }
+  .sq { display: flex; justify-content: center; align-items: center; font-size: min(8vw, 38px); cursor: pointer; position: relative; }
   .sq.light { background: var(--light-sq); color: #0f172a; }
   .sq.dark { background: var(--dark-sq); color: #0f172a; }
   .sq.setup-zone { box-shadow: inset 0 0 0 2px rgba(16, 185, 129, 0.45); }
@@ -424,7 +426,9 @@ let selectedBankIdx = 0;
 let selectedSq = null;
 let validMoves = [];
 let lastMove = null;
-let enPassantTarget = null;\nlet repetitionHistory = [];\nlet halfMoveClock = 0;
+let enPassantTarget = null;
+let repetitionHistory = [];
+let halfMoveClock = 0;
 let wTime = 60, bTime = 60;
 let gameTimer = null;
 let opponentInfo = { name: 'Bot Aprendiz', elo: 800, isBot: true };
@@ -464,6 +468,8 @@ function initGameSession() {
   validMoves = [];
   lastMove = null;
   enPassantTarget = null;
+  repetitionHistory = [];
+  halfMoveClock = 0;
 
   const prepSecs = selectedMode === 'blitz' ? 30 : 60;
   wTime = prepSecs;
@@ -559,7 +565,8 @@ function renderBoard() {
           sq.classList.add('setup-zone');
         }
         const piece = board[r][c];
-        if (piece) sq.innerText = GLYPHS[piece.color][piece.type];\n        const coord = document.createElement("span"); coord.className="coord"; coord.textContent=String.fromCharCode(97+c)+(8-r); sq.appendChild(coord);
+        if (piece) sq.appendChild(document.createTextNode(GLYPHS[piece.color][piece.type]));
+      const coord = document.createElement("span"); coord.className="coord"; coord.textContent=String.fromCharCode(97+c)+(8-r); sq.appendChild(coord);
 
         if (selectedSq && selectedSq.r === r && selectedSq.c === c) sq.classList.add('selected');
         if (lastMove && ((lastMove.from.r === r && lastMove.from.c === c) || (lastMove.to.r === r && lastMove.to.c === c))) {
@@ -709,6 +716,8 @@ function confirmSetup(forced = false) {
 function beginPlayPhase() {
   phase = 'play';
   turn = 'w';
+  repetitionHistory = [positionKey()];
+  halfMoveClock = 0;
   const matchTime = selectedMode === 'blitz' ? 180 : 600;
   wTime = matchTime;
   bTime = matchTime;
@@ -723,21 +732,35 @@ function beginPlayPhase() {
 }
 
 function positionKey(){
-  const rows=board.map(row=>row.map(p=>p?p.color+p.type+(p.moved?"1":"0"):"--").join(",")).join("/");
-  return rows+"|"+turn+"|"+(enPassantTarget?enPassantTarget.r+","+enPassantTarget.c:"-");
+  const rows=board.map(row=>row.map(p=>p?p.color+p.type:"--").join(",")).join("/");
+  const rights=["w","b"].map(color=>{
+    const king=board.flat().find(p=>p&&p.type==="K"&&p.color===color);
+    if(!king||king.moved)return color+"-";
+    const row=color==="w"?7:0,rooks=board[row];
+    return color+((rooks[0]&&rooks[0].type==="R"&&rooks[0].color===color&&!rooks[0].moved?"Q":"")+(rooks[7]&&rooks[7].type==="R"&&rooks[7].color===color&&!rooks[7].moved?"K":""));
+  }).join("|");
+  return rows+"|"+turn+"|"+rights+"|"+(enPassantTarget?enPassantTarget.r+","+enPassantTarget.c:"-");
 }
-function isBareKings(){
-  const pieces=board.flat().filter(Boolean);
-  return pieces.length===2&&pieces.every(p=>p.type==="K");
+function isInsufficientMaterial(){
+  const pieces=board.flat().filter(Boolean), nonKings=pieces.filter(p=>p.type!=="K");
+  if(!nonKings.length)return true;
+  if(nonKings.length===1&&["B","N"].includes(nonKings[0].type))return true;
+  if(nonKings.length===2&&nonKings.every(p=>p.type==="B")&&nonKings[0].color!==nonKings[1].color){
+    const squares=[];board.forEach((row,r)=>row.forEach((p,c)=>{if(p&&p.type==="B")squares.push((r+c)%2)}));
+    return squares.length===2&&squares[0]===squares[1];
+  }
+  return false;
 }
+function isBareKings(){ return isInsufficientMaterial(); }
 function recordPosition(){
   const key=positionKey(); repetitionHistory.push(key);
   if(repetitionHistory.filter(x=>x===key).length>=3){endGame("draw","Tablas automáticas por triple repetición.");return true;}
-  if(isBareKings()){endGame("draw","Tablas automáticas: solo quedan los dos reyes.");return true;}
+  if(isBareKings()){endGame("draw","Tablas automáticas por material insuficiente.");return true;}
   if(halfMoveClock>=150){endGame("draw","Tablas automáticas por 75 movimientos sin captura ni movimiento de peón.");return true;}
   return false;
 }
-\n// --- CHESS RULES & MOVE GENERATION ---
+
+// --- CHESS RULES & MOVE GENERATION ---
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 
 function getPseudoMoves(b, r, c) {
@@ -889,7 +912,9 @@ function executeMove(from, to) {
   piece.moved = true;
   board[to.r][to.c] = piece;
   board[from.r][from.c] = null;
-  const pawnMove=piece.type==='P';\n  if (pawnMove && (to.r === 0 || to.r === 7)) piece.type = 'Q';\n  halfMoveClock=(pawnMove||captured)?0:halfMoveClock+1;
+  const pawnMove=piece.type==='P';
+  if (pawnMove && (to.r === 0 || to.r === 7)) piece.type = 'Q';
+  halfMoveClock=(pawnMove||captured)?0:halfMoveClock+1;
 
   if (captured) SFX.capture(); else SFX.move();
   lastMove = { from, to };
@@ -898,7 +923,8 @@ function executeMove(from, to) {
   if (selectedMode === 'blitz') { if (turn === 'w') wTime += 2; else bTime += 2; }
   turn = turn === 'w' ? 'b' : 'w';
   renderBoard(); updateClocksUI();
-  if(recordPosition())return;\n  const nextMoves = getAllLegalMoves(board, turn);
+  if(recordPosition())return;
+  const nextMoves = getAllLegalMoves(board, turn);
   const inCheck = isKingInCheck(board, turn);
   if (nextMoves.length === 0) {
     if (inCheck) {
