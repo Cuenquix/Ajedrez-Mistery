@@ -424,7 +424,7 @@ let selectedBankIdx = 0;
 let selectedSq = null;
 let validMoves = [];
 let lastMove = null;
-let enPassantTarget = null;
+let enPassantTarget = null;\nlet repetitionHistory = [];\nlet halfMoveClock = 0;
 let wTime = 60, bTime = 60;
 let gameTimer = null;
 let opponentInfo = { name: 'Bot Aprendiz', elo: 800, isBot: true };
@@ -722,7 +722,22 @@ function beginPlayPhase() {
   updateClocksUI();
 }
 
-// --- CHESS RULES & MOVE GENERATION ---
+function positionKey(){
+  const rows=board.map(row=>row.map(p=>p?p.color+p.type+(p.moved?"1":"0"):"--").join(",")).join("/");
+  return rows+"|"+turn+"|"+(enPassantTarget?enPassantTarget.r+","+enPassantTarget.c:"-");
+}
+function isBareKings(){
+  const pieces=board.flat().filter(Boolean);
+  return pieces.length===2&&pieces.every(p=>p.type==="K");
+}
+function recordPosition(){
+  const key=positionKey(); repetitionHistory.push(key);
+  if(repetitionHistory.filter(x=>x===key).length>=3){endGame("draw","Tablas automáticas por triple repetición.");return true;}
+  if(isBareKings()){endGame("draw","Tablas automáticas: solo quedan los dos reyes.");return true;}
+  if(halfMoveClock>=100){endGame("draw","Tablas automáticas por 50 movimientos sin captura ni movimiento de peón.");return true;}
+  return false;
+}
+\n// --- CHESS RULES & MOVE GENERATION ---
 function inBounds(r, c) { return r >= 0 && r < 8 && c >= 0 && c < 8; }
 
 function getPseudoMoves(b, r, c) {
@@ -874,7 +889,7 @@ function executeMove(from, to) {
   piece.moved = true;
   board[to.r][to.c] = piece;
   board[from.r][from.c] = null;
-  if (piece.type === 'P' && (to.r === 0 || to.r === 7)) piece.type = 'Q';
+  const pawnMove=piece.type==='P';\n  if (pawnMove && (to.r === 0 || to.r === 7)) piece.type = 'Q';\n  halfMoveClock=(pawnMove||captured)?0:halfMoveClock+1;
 
   if (captured) SFX.capture(); else SFX.move();
   lastMove = { from, to };
@@ -883,7 +898,7 @@ function executeMove(from, to) {
   if (selectedMode === 'blitz') { if (turn === 'w') wTime += 2; else bTime += 2; }
   turn = turn === 'w' ? 'b' : 'w';
   renderBoard(); updateClocksUI();
-  const nextMoves = getAllLegalMoves(board, turn);
+  if(recordPosition())return;\n  const nextMoves = getAllLegalMoves(board, turn);
   const inCheck = isKingInCheck(board, turn);
   if (nextMoves.length === 0) {
     if (inCheck) {
