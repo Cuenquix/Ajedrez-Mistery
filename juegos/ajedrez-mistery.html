@@ -558,6 +558,7 @@ function renderBoard() {
       sq.className = 'sq ' + (isLight ? 'light' : 'dark');
 
       const isHidden = (phase === 'setup_w' && r < 4) || (phase === 'setup_b' && r >= 4);
+      const coord = document.createElement("span"); coord.className="coord"; coord.textContent=String.fromCharCode(97+c)+(8-r); sq.appendChild(coord);
       if (isHidden) {
         sq.classList.add('hidden-zone');
       } else {
@@ -745,7 +746,7 @@ function isInsufficientMaterial(){
   const pieces=board.flat().filter(Boolean), nonKings=pieces.filter(p=>p.type!=="K");
   if(!nonKings.length)return true;
   if(nonKings.length===1&&["B","N"].includes(nonKings[0].type))return true;
-  if(nonKings.length===2&&nonKings.every(p=>p.type==="B")&&nonKings[0].color!==nonKings[1].color){
+  if(nonKings.length===2&&nonKings.every(p=>p.type==="B")){
     const squares=[];board.forEach((row,r)=>row.forEach((p,c)=>{if(p&&p.type==="B")squares.push((r+c)%2)}));
     return squares.length===2&&squares[0]===squares[1];
   }
