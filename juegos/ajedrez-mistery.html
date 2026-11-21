@@ -656,11 +656,12 @@ function makeRandomArmy(color) {
   const ownRows = color === 'w' ? [4,5,6,7] : [0,1,2,3];
   const pawnRows = color === 'w' ? [4,5,6] : [1,2,3];
   const shuffle = arr => [...arr].sort(() => Math.random() - 0.5);
-  const backFiles = shuffle([0,1,2,3,4,5,6,7]);
-  const kingFile = backFiles[3];
-  const rookFiles = [backFiles[0], backFiles[7]].sort((a,b)=>a-b);
+  const kingFile = 1 + Math.floor(Math.random() * 6);
+  const leftRookFile = Math.floor(Math.random() * kingFile);
+  const rightRookFile = kingFile + 1 + Math.floor(Math.random() * (7 - kingFile));
   board[backRow][kingFile] = {color,type:'K',moved:false};
-  rookFiles.forEach(c => { board[backRow][c] = {color,type:'R',moved:false}; });
+  board[backRow][leftRookFile] = {color,type:'R',moved:false};
+  board[backRow][rightRookFile] = {color,type:'R',moved:false};
 
   const freeSquares = [];
   ownRows.forEach(r => { for(let c=0;c<8;c++) if(!board[r][c]) freeSquares.push({r,c}); });
