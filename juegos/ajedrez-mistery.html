@@ -70,7 +70,7 @@
 
   #board-wrapper { position: relative; padding: 6px; background: var(--panel); border-radius: 10px; border: 2px solid #334155; }
   #board { display: grid; grid-template-columns: repeat(8, min(11vw, 54px)); grid-template-rows: repeat(8, min(11vw, 54px)); user-select: none; }
-  .sq { display: flex; justify-content: center; align-items: center; font-size: min(8vw, 38px); cursor: pointer; position: relative; }
+  .sq .coord { position:absolute; bottom:2px; left:3px; font:600 9px/1 sans-serif; opacity:.65; pointer-events:none; z-index:2; }\n  .sq.light .coord { color:#263246; } .sq.dark .coord { color:#f5e8c9; }\n  .sq { display: flex; justify-content: center; align-items: center; font-size: min(8vw, 38px); cursor: pointer; position: relative; }
   .sq.light { background: var(--light-sq); color: #0f172a; }
   .sq.dark { background: var(--dark-sq); color: #0f172a; }
   .sq.setup-zone { box-shadow: inset 0 0 0 2px rgba(16, 185, 129, 0.45); }
@@ -559,7 +559,7 @@ function renderBoard() {
           sq.classList.add('setup-zone');
         }
         const piece = board[r][c];
-        if (piece) sq.innerText = GLYPHS[piece.color][piece.type];
+        if (piece) sq.innerText = GLYPHS[piece.color][piece.type];\n        const coord = document.createElement("span"); coord.className="coord"; coord.textContent=String.fromCharCode(97+c)+(8-r); sq.appendChild(coord);
 
         if (selectedSq && selectedSq.r === r && selectedSq.c === c) sq.classList.add('selected');
         if (lastMove && ((lastMove.from.r === r && lastMove.from.c === c) || (lastMove.to.r === r && lastMove.to.c === c))) {
