@@ -14,6 +14,8 @@ El proyecto se centra en Ajedrez Mistery: preparación personalizada de la posic
 ## Estructura
 - `index.html` — portal de Ajedrez Mistery.
 - `juegos/ajedrez-mistery.html` — juego.
+- `academia.html` — academia, 100 preguntas y reto diario.
+- `tablero.html` — retos tácticos interactivos sobre tablero.
 - `manifest.webmanifest` y `sw.js` — instalación como web app y caché.
 - `icons/` — iconos de la aplicación.
 
