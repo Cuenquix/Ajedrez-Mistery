@@ -70,8 +70,8 @@
 
   #board-wrapper { position: relative; padding: 6px; background: var(--panel); border-radius: 10px; border: 2px solid #334155; }
   #board { display: grid; grid-template-columns: repeat(8, min(11vw, 54px)); grid-template-rows: repeat(8, min(11vw, 54px)); user-select: none; }
-  .sq .coord { position:absolute; bottom:2px; left:3px; font:600 9px/1 sans-serif; opacity:.65; pointer-events:none; z-index:2; }
-  .sq.light .coord { color:#263246; } .sq.dark .coord { color:#f5e8c9; }
+  .sq .coord-rank,.sq .coord-file { position:absolute; font:600 9px/1 sans-serif; opacity:.72; pointer-events:none; z-index:2; }.sq .coord-rank{top:2px;left:3px}.sq .coord-file{bottom:2px;left:3px}
+  .sq.light .coord-rank,.sq.light .coord-file { color:#263246; } .sq.dark .coord-rank,.sq.dark .coord-file { color:#f5e8c9; }
   .sq { display: flex; justify-content: center; align-items: center; font-size: min(8vw, 38px); cursor: pointer; position: relative; }
   .sq.light { background: var(--light-sq); color: #0f172a; }
   .sq.dark { background: var(--dark-sq); color: #0f172a; }
@@ -556,27 +556,30 @@ function renderBoard() {
       const sq = document.createElement('div');
       const isLight = (r + c) % 2 === 0;
       sq.className = 'sq ' + (isLight ? 'light' : 'dark');
-
+      // Coordenadas oficiales: rangos en el borde izquierdo y columnas en el inferior.
+      if (c === 0) {
+        const rank = document.createElement('span');
+        rank.className = 'coord-rank';
+        rank.textContent = String(8-r);
+        sq.appendChild(rank);
+      }
+      if (r === 7) {
+        const file = document.createElement('span');
+        file.className = 'coord-file';
+        file.textContent = String.fromCharCode(97+c);
+        sq.appendChild(file);
+      }
       const isHidden = (phase === 'setup_w' && r < 4) || (phase === 'setup_b' && r >= 4);
-      const coord = document.createElement("span"); coord.className="coord"; coord.textContent=String.fromCharCode(97+c)+(8-r); sq.appendChild(coord);
       if (isHidden) {
         sq.classList.add('hidden-zone');
       } else {
-        if ((phase === 'setup_w' && r >= 4) || (phase === 'setup_b' && r < 4)) {
-          sq.classList.add('setup-zone');
-        }
+        if ((phase === 'setup_w' && r >= 4) || (phase === 'setup_b' && r < 4)) sq.classList.add('setup-zone');
         const piece = board[r][c];
         if (piece) sq.appendChild(document.createTextNode(GLYPHS[piece.color][piece.type]));
-      const coord = document.createElement("span"); coord.className="coord"; coord.textContent=String.fromCharCode(97+c)+(8-r); sq.appendChild(coord);
-
         if (selectedSq && selectedSq.r === r && selectedSq.c === c) sq.classList.add('selected');
-        if (lastMove && ((lastMove.from.r === r && lastMove.from.c === c) || (lastMove.to.r === r && lastMove.to.c === c))) {
-          sq.classList.add('last-move');
-        }
+        if (lastMove && ((lastMove.from.r === r && lastMove.from.c === c) || (lastMove.to.r === r && lastMove.to.c === c))) sq.classList.add('last-move');
         const hintMove = validMoves.find(m => m.r === r && m.c === c);
-        if (hintMove) {
-          sq.classList.add(board[r][c] ? 'capture-hint' : 'hint');
-        }
+        if (hintMove) sq.classList.add(board[r][c] ? 'capture-hint' : 'hint');
         sq.onclick = () => onSquareClick(r, c);
       }
       boardDiv.appendChild(sq);
