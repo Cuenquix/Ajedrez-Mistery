@@ -1,8 +1,8 @@
 {
   "id": "./",
   "name": "Ajedrez Mistery",
-  "short_name": "Ajedrez",
-  "description": "Ajedrez Mistery y otros juegos originales de Marc Cuenca (Cuenquix).",
+  "short_name": "Mistery",
+  "description": "Juega, aprende y entrena con Ajedrez Mistery.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
