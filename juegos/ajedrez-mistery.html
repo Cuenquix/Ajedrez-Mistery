@@ -734,7 +734,7 @@ function recordPosition(){
   const key=positionKey(); repetitionHistory.push(key);
   if(repetitionHistory.filter(x=>x===key).length>=3){endGame("draw","Tablas automáticas por triple repetición.");return true;}
   if(isBareKings()){endGame("draw","Tablas automáticas: solo quedan los dos reyes.");return true;}
-  if(halfMoveClock>=100){endGame("draw","Tablas automáticas por 50 movimientos sin captura ni movimiento de peón.");return true;}
+  if(halfMoveClock>=150){endGame("draw","Tablas automáticas por 75 movimientos sin captura ni movimiento de peón.");return true;}
   return false;
 }
 \n// --- CHESS RULES & MOVE GENERATION ---
